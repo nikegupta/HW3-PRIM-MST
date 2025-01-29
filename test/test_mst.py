@@ -29,11 +29,33 @@ def check_mst(adj_mat: np.ndarray,
     def approx_equal(a, b):
         return abs(a - b) < allowed_error
 
+    traveled = []
+    for i in range(mst.shape[0]):
+        traveled.append(False)
+
+    total_edges = 0
     total = 0
     for i in range(mst.shape[0]):
         for j in range(i+1):
             total += mst[i, j]
-    assert approx_equal(total, expected_weight), 'Proposed MST has incorrect expected weight'
+            
+            if mst[i,j] > 0:
+                total_edges += 1
+                traveled[i] = True
+                traveled[j] = True
+
+    assert approx_equal(total, expected_weight), 'Proposed MST has incorrect expected weight: ' + str(total)
+
+    #check for right number of edges in mst
+    assert total_edges == len(adj_mat) - 1 
+
+    flag = True
+    for i in range(len(traveled)):
+        if traveled[i] == False:
+            flag = False
+
+    #check that all vertices are traveled to
+    assert flag
 
 
 def test_mst_small():
@@ -71,4 +93,11 @@ def test_mst_student():
     TODO: Write at least one unit test for MST construction.
     
     """
+
+    #Tests to see that algorithm detects unconnected graph
+    file_path = './data/unconnected.csv'
+    g = Graph(file_path)
+    g.construct_mst()
+    assert g.mst == 'Warning: Graph is not connected'
+
     pass
